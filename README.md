@@ -22,4 +22,4 @@
 * Any user can become a party leader and invite another user at any point of the crawl
 * The scoreboard should keep track of both user scores and team scores
 * The game feed should allow users to post photos along the way
-![alt tag](wireframes/iPhone 7.png)
+![alt text](wireframes/iPhone 7.png)
