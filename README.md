@@ -23,4 +23,5 @@
 * The scoreboard should keep track of both user scores and team scores
 * The game feed should allow users to post photos along the way
 
+#Wireframes
 ![alt tag](wireframes/frames.png)
