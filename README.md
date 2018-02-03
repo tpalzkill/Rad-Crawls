@@ -1,6 +1,6 @@
 # Rad-Crawls
 
-# User Stories
+# 															User Stories
 * A party leader should be able to engage a crawl at anytime.
 	* The crawl should be editable and be mapped and routed nearby the users current location.
 * A party leader should be able to invite friends to the party
@@ -23,5 +23,5 @@
 * The scoreboard should keep track of both user scores and team scores
 * The game feed should allow users to post photos along the way
 
-# Wireframes
+# 																Wireframes
 ![alt tag](wireframes/frames.png)
