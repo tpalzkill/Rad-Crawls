@@ -24,4 +24,7 @@
 * The game feed should allow users to post photos along the way
 
 # 																Wireframes
-![alt tag](wireframes/frames.png)
+![alt tag](diagrams/wireframes.png)
+
+# ERD
+![alt tag](diagrams/erd.png)
