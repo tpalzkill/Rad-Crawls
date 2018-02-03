@@ -8,7 +8,7 @@ const router = new Router();
  */
 router.get('/', async ctx => {
   ctx.body = {
-    app: Rad-Crawls,
+    app: name,
     version: version
   };
 });
