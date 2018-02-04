@@ -5,8 +5,8 @@ import bodyParser from 'koa-bodyparser';
 import router from './routes';
 
 const app = new Koa();
-const config = require('../knexfile')['development']
-const knex = require('knex')(config)
+const config = require('../knexfile')['development'];
+const knex = require('knex')(config);
 
 
 // Set middlewares
