@@ -9,83 +9,7 @@ const passport = require('koa-passport');
 const localStrategy = require('passport-local').Strategy;
 const session = require('koa-session');
 const bodyParser = require('koa-bodyparser')
-
-/**
- * GET /
- */
-router.get('/', async ctx => {
-  try {
-    const users = await knex('users').select('*');
-    ctx.body = {
-      status: 'success',
-      data: users
-    };
-  } catch (err) {
-    console.log(err)
-  }
-});
-
-router.post('/users', async ctx => {
-  const saltRounds = 10;
-  try {
-
-  const new_user = await knex('users')
-        .insert({
-          email: ctx.request.body.email,
-          hashed_password: bcrypt.hashSync(ctx.request.body.password, saltRounds),
-          profile_photo: ctx.request.body.profile_photo,
-          full_name: ctx.request.body.full_name,
-          location: ctx.request.body.location,
-        })
-        .returning('*');
-
-    if (new_user.length) {
-      ctx.status = 201;
-      ctx.body = {
-        status: 'success',
-        data: ctx.request.body
-      };
-    } else {
-      ctx.status = 400;
-      ctx.body = {
-        status: 'error',
-        message: request.body || 'Something went wrong.'
-      };
-    }
-  } catch (err) {
-    ctx.status = 400;
-    ctx.body = {
-      status: 'error',
-      message:  err.message || 'Sorry, an error has occurred.'
-    };
-  }
-})
-router.post('/create', async ctx => {
-  try {
-    const new_challenge = await knex('challenges').insert(ctx.request.body).returning('*');
-    if (new_challenge.length) {
-      ctx.status = 201;
-      ctx.body = {
-        status: 'success',
-        data: ctx.request.body
-      };
-    } else {
-      ctx.status = 400;
-      ctx.body = {
-        status: 'error',
-        message: ctx.request.body || 'Something went wrong.'
-      };
-    }
-  } catch (err) {
-    ctx.status = 400;
-    ctx.body = {
-      status: 'error',
-      message: ctx.request.body || 'Sorry, an error has occurred.'
-    };
-  }
-})
-
-passport.use('login', new localStrategy({
+passport.use('local', new localStrategy({
   usernameField: 'email',
   passwordField: 'password',
   passReqToCallback: true
@@ -136,5 +60,92 @@ console.log('im deserialized boooooooo')
       }
     })
 })
+/**
+ * GET /
+ */
+router.get('/', async ctx => {
+  try {
+    const users = await knex('users').select('*');
+    ctx.body = {
+      status: 'success',
+      data: users
+    };
+  } catch (err) {
+    console.log(err)
+  }
+});
+
+router.post('/login', async ctx => {
+  return passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/',
+  successFlash: true,
+  failureFlash: true
+
+})(ctx);
+});
+
+router.post('/register', async ctx => {
+  const saltRounds = 10;
+  try {
+
+  const new_user = await knex('users')
+        .insert({
+          email: ctx.request.body.email,
+          hashed_password: bcrypt.hashSync(ctx.request.body.password, saltRounds),
+          profile_photo: ctx.request.body.profile_photo,
+          full_name: ctx.request.body.full_name,
+          location: ctx.request.body.location,
+        })
+        .returning('*');
+
+    if (new_user.length) {
+      ctx.status = 201;
+      ctx.body = {
+        status: 'success',
+        data: ctx.request.body
+      };
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        status: 'error',
+        message: request.body || 'Something went wrong.'
+      };
+    }
+  } catch (err) {
+    ctx.status = 400;
+    ctx.body = {
+      status: 'error',
+      message:  err.message || 'Sorry, an error has occurred.'
+    };
+  }
+})
+
+router.post('/create', async ctx => {
+  try {
+    const new_challenge = await knex('challenges').insert(ctx.request.body).returning('*');
+    if (new_challenge.length) {
+      ctx.status = 201;
+      ctx.body = {
+        status: 'success',
+        data: ctx.request.body
+      };
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        status: 'error',
+        message: ctx.request.body || 'Something went wrong.'
+      };
+    }
+  } catch (err) {
+    ctx.status = 400;
+    ctx.body = {
+      status: 'error',
+      message: ctx.request.body || 'Sorry, an error has occurred.'
+    };
+  }
+})
+
+
 
 export default router;
