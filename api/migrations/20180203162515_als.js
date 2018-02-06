@@ -7,6 +7,7 @@ exports.up = function(knex, Promise) {
     table.foreign('partyleader').references('users.id').onDelete('cascade');
     table.json('comments');
     table.boolean('teams');
+    table.boolean('complete');
     table.string('team_names')
     table.string('team_a')
     table.string('team_b')

@@ -8,6 +8,7 @@ exports.up = function(knex, Promise) {
   table.string('full_name');
   table.string('profile_photo');
   table.string('location');
+  table.integer('score').defaultTo(0);
 });
 };
 
