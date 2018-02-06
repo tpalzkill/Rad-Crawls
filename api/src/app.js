@@ -3,27 +3,23 @@ import cors from '@koa/cors';
 import logger from 'koa-morgan';
 import bodyParser from 'koa-bodyparser';
 import router from './routes';
+
 const app = new Koa();
 const config = require('../knexfile')['development'];
 const knex = require('knex')(config);
 const bcrypt = require('bcrypt');
+const passport = require('koa-passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('koa-session');
-app.keys = ['your-session-secret']
-app.use(session({}, app))
-const passport = require('koa-passport');
+
 app.use(passport.initialize());
 app.use(passport.session());
+app.keys = ['super-secret-key'];
+app.use(session(app));
 
 
 // Set middlewares
-app.use(
-  bodyParser({
-    enableTypes: ['json', 'form'],
-    formLimit: '10mb',
-    jsonLimit: '10mb'
-  })
-);
+app.use(bodyParser());
 
 // Logger
 app.use(

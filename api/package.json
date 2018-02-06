@@ -24,6 +24,8 @@
     "bcrypt": "^1.0.3",
     "bcrypt-as-promised": "^1.1.0",
     "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "flash": "^1.1.0",
     "knex": "^0.14.2",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
@@ -32,7 +34,8 @@
     "koa-session": "^5.8.1",
     "passport-local": "^1.0.0",
     "pg": "^7.4.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "yelp-fusion": "^2.0.3"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.0",
