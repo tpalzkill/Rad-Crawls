@@ -88,7 +88,8 @@ passport.use(new localStrategy(options, (email, password, done) => {
 
 router.get('/login', async ctx => {
 
-})
+});
+
 router.post('/login', async ctx => {
   return passport.authenticate('local', (err, user, info, status) => {
     if (user) {
@@ -175,7 +176,9 @@ let yelpCall = function() {
  */
 //landing after login
 router.get('/landing', async ctx => {
+if (ctx.isAuthenticated()) {
   try {
+
     //location should come through hidden forms submitted on load and then be sent to make a route
     const currLat = ctx.req.currLat;
     const currLon = ctx.req.currLon;
@@ -192,12 +195,18 @@ router.get('/landing', async ctx => {
     };
   } catch (err) {
     console.log(err)
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 });
 
 // On click of New Crawl provide yelp results to create route w/ mapbox on the frontend
 
 router.get('/new_route', async ctx => {
+  if (ctx.isAuthenticated()) {
   try {
     const currLat = ctx.req.currLat;
     const currLon = ctx.req.currLon;
@@ -214,6 +223,11 @@ router.get('/new_route', async ctx => {
     };
   } catch (err) {
     console.log(err)
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 })
 
@@ -221,6 +235,7 @@ router.get('/new_route', async ctx => {
 //(Whoever clicks this is party leader)
 
 router.post('/new_party/:user_id', async ctx => {
+  if (ctx.isAuthenticated()) {
   try {
     const new_party = await knex('parties').insert(ctx.request.body).returning('*');
     if (new_party.length) {
@@ -242,10 +257,16 @@ router.post('/new_party/:user_id', async ctx => {
       status: 'error',
       message: ctx.request.body || 'Sorry, an error has occurred.'
     };
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 })
 // id is the user id of who is being invited
 router.post('/send_invite/:party_id/:user_id', async ctx => {
+  if (ctx.isAuthenticated()) {
   try {
     const invite = await knex('user_party')
       .insert({
@@ -273,12 +294,18 @@ router.post('/send_invite/:party_id/:user_id', async ctx => {
       status: 'error',
       message: ctx.request.body || 'Sorry, an error has occurred.'
     };
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 })
 
-router.post('/invite_response/:party_id', async ctx => {
+router.post('/invite_response/:user_id/:party_id', async ctx => {
+  if (ctx.isAuthenticated()) {
   try {
-    const invite_response = await knex('user_party').where('party_id', '=', ctx.params.party_id).andWhere('user_id', '=', ctx.request.body.user_id).update({
+    const invite_response = await knex('user_party').where('party_id', '=', ctx.params.party_id).andWhere('user_id', '=', ctx.params.user_id).update({
       response: ctx.request.body.response
     }).returning('*');
     if (invite_response.length) {
@@ -300,11 +327,17 @@ router.post('/invite_response/:party_id', async ctx => {
       status: 'error',
       message: ctx.request.body || 'Sorry, an error has occurred.'
     };
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 })
 
 // party = user_party where party_id = url and response = true
 router.get('/current_party/:user_id/:party_id', async ctx => {
+  if (ctx.isAuthenticated()) {
   try {
     const current_party = await knex('users').join('user_party', 'users.id', 'user_party.user_id').select('full_name').where('party_id', ctx.params.party_id).andWhere('response', 'True').returning('*');
     ctx.body = {
@@ -313,13 +346,18 @@ router.get('/current_party/:user_id/:party_id', async ctx => {
     };
   } catch (err) {
     console.log(err)
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 })
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~challenges~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 router.get('/challenges', async ctx => {
-
+  if (ctx.isAuthenticated()) {
   try {
     const users = await knex('users').select('*');
     const parties = await knex('parties').select('*');
@@ -331,11 +369,16 @@ router.get('/challenges', async ctx => {
     };
   } catch (err) {
     console.log(err)
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 });
 
 router.get('/challenges/:id', async ctx => {
-
+  if (ctx.isAuthenticated()) {
   try {
     let someDeet = ctx.params.id;
     const users = await knex('users').select('*');
@@ -350,10 +393,16 @@ router.get('/challenges/:id', async ctx => {
     };
   } catch (err) {
     console.log(err)
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 });
 
 router.post('/new_challenge', async ctx => {
+  if (ctx.isAuthenticated()) {
   try {
     const new_challenge = await knex('challenges').insert(ctx.request.body).returning('*');
     if (new_challenge.length) {
@@ -375,10 +424,16 @@ router.post('/new_challenge', async ctx => {
       status: 'error',
       message: ctx.request.body || 'Sorry, an error has occurred.'
     };
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 })
 
 router.post('/complete_challenge/:user_id/:challenge_id', async ctx => {
+  if (ctx.isAuthenticated()) {
   try {
     const complete_challenge = await knex('challenges').where({
       id: ctx.params.challenge_id
@@ -412,26 +467,66 @@ router.post('/complete_challenge/:user_id/:challenge_id', async ctx => {
       status: 'error',
       message: ctx.request.body || 'Sorry, an error has occurred.'
     };
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 });
 
-router.get('/route/:user_id', async ctx => {
 
-})
-
-router.get('/leave_party/:user_id', async ctx => {
-
+router.post('/leave_party/:user_id/:party_id', async ctx => {
+if (ctx.isAuthenticated()) {
+  const leave_party = await knex('user_party').where('party_id', '=', ctx.params.party_id).andWhere('user_id', '=', ctx.params.user_id).update({
+    response: false
+  }).returning('*');
+  if (invite_response.length) {
+    ctx.status = 201;
+    ctx.body = {
+      status: 'success',
+      data: ctx.request.body
+    };
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      status: 'error',
+      message: ctx.request.body || 'Something went wrong.'
+    };
+  }
+} else {
+  ctx.body = {
+    success: false
+  };
+  ctx.throw(401);
+}
 });
 
-router.get('/checkin/:user_id/:bar_id', async ctx => {
-
-});
 
 router.get('/completed_parties/:user_id', async ctx => {
+if (ctx.isAuthenticated()) {
+  try {
+    const users = await knex('users').select('*');
+    const parties = await knex('parties').join('user_party', 'party.id', 'user_party.user_id').where('complete',true).select('*');
+    const challenges = await knex('challenges').select('*');
+    ctx.body = {
+      status: 'success',
+      data: parties, users, challenges
 
+    };
+  } catch (err) {
+    console.log(err)
+  }
+} else {
+  ctx.body = {
+    success: false
+  };
+  ctx.throw(401);
+}
 });
 
 router.get('/end_party/:user_id/:party_id', async ctx => {
+if (ctx.isAuthenticated()) {
   try {
     const isLeader = await knex('parties').select('partyleader').where('id', ctx.params.party_id);
     console.log(ctx.params.user_id, isLeader[0].partyleader);
@@ -461,6 +556,11 @@ router.get('/end_party/:user_id/:party_id', async ctx => {
       status: 'error',
       message: err.message || 'Sorry, an error has occurred.'
     }
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 });
 
@@ -483,8 +583,8 @@ router.get('/end_party/:user_id/:party_id', async ctx => {
 // });
 
 
-router.get('/parties', async ctx => {
-
+router.get('/scoreboard/:party_id/:user_id', async ctx => {
+if (ctx.isAuthenticated()) {
   try {
     const users = await knex('users').select('*');
     const parties = await knex('parties').select('*');
@@ -497,8 +597,14 @@ router.get('/parties', async ctx => {
     };
   } catch (err) {
     console.log(err)
+  }} else {
+    ctx.body = {
+      success: false
+    };
+    ctx.throw(401);
   }
 });
+
 
 
 
