@@ -31,10 +31,10 @@ module.exports = {
   production: {
     client: 'postgresql',
     connection: {
-      host: 'node -r dotenv/config -r babel-register src/index.js',
-      database: 'dd1e0dddplk40f',
-      user:     'gxihngrkwbwrwe',
-      password: '664d366f082eea8912c5cad107544f65117e2918498ca893659afa1513bed2ad'
+      host: 'ec2-107-22-241-243.compute-1.amazonaws.com',
+      database: 'dagrekaou6578j',
+      user:     'kqpeybdrdffizn',
+      password: 'f9f20a77cb7aec412792f60a067151fd889cf644dff139c3d59c45e3c6f77fc9'
     },
     pool: {
       min: 2,
