@@ -5,7 +5,7 @@ import bodyParser from 'koa-bodyparser';
 import router from './routes';
 
 const app = new Koa();
-const config = require('../knexfile')['development'];
+const config = require('../knexfile')['production'];
 const knex = require('knex')(config);
 const bcrypt = require('bcrypt');
 const passport = require('koa-passport');
