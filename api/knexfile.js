@@ -29,11 +29,12 @@ module.exports = {
   },
 
   production: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
-      database: 'my_db',
-      user:     'username',
-      password: 'password'
+      host: 'ec2-54-235-66-81.compute-1.amazonaws.com'
+      database: 'd66kmlk081heh',
+      user:     'jzykhpnvaosymj',
+      password: '59241c39332c8f322144cbf1c63e1342657fd073a7147540293afb5754bfb3d4'
     },
     pool: {
       min: 2,
