@@ -8,10 +8,9 @@ exports.up = function(knex, Promise) {
     table.json('comments');
     table.boolean('teams');
     table.boolean('complete');
-    table.string('team_names')
-    table.string('team_a')
-    table.string('team_b')
-    table.integer('user_score').unsigned();
+    table.string('team_names');
+    table.string('team_a');
+    table.string('team_b');
   });
 };
 

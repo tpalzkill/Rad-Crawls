@@ -27,7 +27,7 @@ const client = yelp.client(apiKey);
 function comparePass(userPassword, databasePassword) {
   return bcrypt.compareSync(userPassword, databasePassword);
 }
-
+// putting a conditional on post routes to check if party leader if limited
 // ~~~~~~~~~~~~~~~~~~~~Passport Shit~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 passport.serializeUser((user, done) => {
@@ -68,6 +68,21 @@ passport.use(new localStrategy(options, (email, password, done) => {
       return done(err);
     });
 }));
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// let isLeader = async function(id){
+//   try {
+//   let yeah = await knex('users').join('parties','users.id','parties.partyleader').select('users.id');
+//   console.log(yeah[0].id,Number(id));
+// if (yeah[0].id === Number(id)) {ctx.body = true} else {ctx.body = false};
+// } catch(err) {
+//   ctx.status = 400;
+//   ctx.body = {
+//     status: 'error',
+//     message: 'ctx.request.body'|| 'Sorry, an error has occurred.'
+//   };
+// }
+// }
 
 // ~~~~~~~~~~~~~~~~~~Auth Routes & Register~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -143,7 +158,7 @@ router.post('/register', async ctx => {
   }
 })
 
-let butthead = function() {
+let yelpCall = function() {
   return client.search(searchRequest).then(response => {
     const firstResult = response.jsonBody;
     const prettyJson = JSON.stringify(firstResult, null, 4);
@@ -153,6 +168,7 @@ let butthead = function() {
     console.log(e);
   });
 }
+
 
 /*
  * GET /
@@ -166,7 +182,7 @@ router.get('/landing', async ctx => {
     const users = await knex('users').select('*');
     const parties = await knex('parties').select('*');
     const challenges = await knex('challenges').select('*')
-    let bars = await butthead();
+    let bars = await yelpCall();
     ctx.body = {
       status: 'success',
       data: users,
@@ -179,17 +195,16 @@ router.get('/landing', async ctx => {
   }
 });
 
-// On click of New Crawl provide yelp results to create route w/ mapbox on the frontend (Whoever clicks this is party leader)
+// On click of New Crawl provide yelp results to create route w/ mapbox on the frontend
 
 router.get('/new_route', async ctx => {
   try {
-
     const currLat = ctx.req.currLat;
     const currLon = ctx.req.currLon;
     const users = await knex('users').select('*');
     const parties = await knex('parties').select('*');
     const challenges = await knex('challenges').select('*')
-    let bars = await butthead();
+    let bars = await yelpCall();
     ctx.body = {
       status: 'success',
       data: users,
@@ -203,8 +218,9 @@ router.get('/new_route', async ctx => {
 })
 
 // After route is determined choose that party send invites by email address
+//(Whoever clicks this is party leader)
 
-router.post('/new_party', async ctx => {
+router.post('/new_party/:user_id', async ctx => {
   try {
     const new_party = await knex('parties').insert(ctx.request.body).returning('*');
     if (new_party.length) {
@@ -231,10 +247,13 @@ router.post('/new_party', async ctx => {
 // id is the user id of who is being invited
 router.post('/send_invite/:party_id/:user_id', async ctx => {
   try {
-    const invite = await knex('user_party').insert({
-      user_id: ctx.params.user_id,
-      party_id: ctx.params.party_id
-    }).returning('*');
+    const invite = await knex('user_party')
+      .insert({
+        user_id: ctx.params.user_id,
+        party_id: ctx.params.party_id
+      })
+      .returning('*');
+
     if (invite.length) {
       ctx.status = 201;
       ctx.body = {
@@ -285,9 +304,9 @@ router.post('/invite_response/:party_id', async ctx => {
 })
 
 // party = user_party where party_id = url and response = true
-router.get('/current_party/:party_id', async ctx => {
+router.get('/current_party/:user_id/:party_id', async ctx => {
   try {
-    const current_party = await knex('users').join('user_party','users.id', 'user_party.user_id').select('full_name').where('party_id', ctx.params.party_id).andWhere('response', 'True').returning('*');
+    const current_party = await knex('users').join('user_party', 'users.id', 'user_party.user_id').select('full_name').where('party_id', ctx.params.party_id).andWhere('response', 'True').returning('*');
     ctx.body = {
       status: 'success',
       data: current_party
@@ -361,10 +380,19 @@ router.post('/new_challenge', async ctx => {
 
 router.post('/complete_challenge/:user_id/:challenge_id', async ctx => {
   try {
-    const complete_challenge = await knex('challenges').where({id:ctx.params.challenge_id}).update({completed: 'True', completed_by: ctx.params.user_id }).returning('*');
+    const complete_challenge = await knex('challenges').where({
+      id: ctx.params.challenge_id
+    }).update({
+      completed: 'True',
+      completed_by: ctx.params.user_id
+    }).returning('*');
     const challenge_value = await knex('users').join('challenges', 'users.id', 'challenges.completed_by').select('points');
     console.log(challenge_value[0].points)
-    const score_update = await knex('users').where({id:ctx.params.user_id}).update({score: challenge_value[0].points}).returning('*');
+    const score_update = await knex('users').where({
+      id: ctx.params.user_id
+    }).update({
+      score: challenge_value[0].points
+    }).returning('*');
     if (challenge_value.length) {
       ctx.status = 201;
       ctx.body = {
@@ -385,13 +413,13 @@ router.post('/complete_challenge/:user_id/:challenge_id', async ctx => {
       message: ctx.request.body || 'Sorry, an error has occurred.'
     };
   }
-})
-
-router.get('/scoreboard', async ctx =>  {
-
 });
 
-router.get('/leave_party', async ctx => {
+router.get('/route/:user_id', async ctx => {
+
+})
+
+router.get('/leave_party/:user_id', async ctx => {
 
 });
 
@@ -399,12 +427,41 @@ router.get('/checkin/:user_id/:bar_id', async ctx => {
 
 });
 
-router.get('/completed_parties/user_id', async ctx => {
+router.get('/completed_parties/:user_id', async ctx => {
 
 });
 
-router.get('/end_party', async ctx => {
-
+router.get('/end_party/:user_id/:party_id', async ctx => {
+  try {
+    const isLeader = await knex('parties').select('partyleader').where('id', ctx.params.party_id);
+    console.log(ctx.params.user_id, isLeader[0].partyleader);
+    if (ctx.params.user_id == isLeader[0].partyleader) {
+      const end_party = await knex('parties').update({
+        complete: true
+      }).where('id', ctx.params.party_id);
+      if (end_party) {
+        ctx.status = 201;
+        ctx.body = {
+          status: 'success',
+          data: ctx.request.body
+        };
+      } else {
+        ctx.status = 400;
+        ctx.body = {
+          status: 'error',
+          message: ctx.request.body || 'Something went wrong.'
+        };
+      }
+    } else {
+      console.log('head')
+    };
+  } catch (err) {
+    ctx.status = 400;
+    ctx.body = {
+      status: 'error',
+      message: err.message || 'Sorry, an error has occurred.'
+    }
+  }
 });
 
 // router.get('/users/:id', async ctx => {
@@ -442,10 +499,6 @@ router.get('/parties', async ctx => {
     console.log(err)
   }
 });
-
-
-
-
 
 
 
