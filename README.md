@@ -1,5 +1,21 @@
 # Rad-Crawls
 The backend code is in the repo [rad_crawl_api](https://github.com/tpalzkill/rad_crawl_api) and is live on [heroku](https://peaceful-scrubland-57916.herokuapp.com/). The work that has currently been done on the front end is available in the repo [rad_crawl_swift](https://github.com/tpalzkill/rad_crawl_swift), it must be run on an emulator or an ios device though the code can be viewed in any text editor. 
+
+## Technologies
+
+* NodeJS
+* KOA2 (KOA-router, KOA-sessions.....)
+* Passport (and its associaties)
+* Heroku
+* Yelp API
+* KNEX
+* PSQL
+* AlamoFire
+* Swift
+* GitHub
+* B-Crypt
+* Postman
+
 ## 															User Stories
 * A party leader should be able to engage a crawl at anytime.
 	* The crawl should be editable and be mapped and routed nearby the users current location.
